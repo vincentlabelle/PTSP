@@ -1,54 +1,127 @@
 # -*- coding: utf-8 -*-
+# TODO tests
+
+from typing import Tuple
 
 import numpy as np
+from numpy.random import PCG64
 
-from .variance import IPooledVarianceCalculator
-from .variance import UnbiasedPooledVarianceCalculator
+from .permutation import IOneSidedPermutationPValueCalculator
+from .permutation import OneSidedPermutationPValueCalculator
+from .random import INormalRandomGenerator
+from .random import NumpyNormalGenerator
+from .random import NumpyRandomPermutator
+from .ttest import IndepEqualVarTTestStatisticCalculator
 from .vector import Vector
 
 
-class ITwoSampleTTestStatisticCalculator:
-
-    def calculate(self, sample1: Vector, sample2: Vector) -> float:
-        raise NotImplementedError
-
-
-class IndependentEqualVariancesCalculator(ITwoSampleTTestStatisticCalculator):
-    # independent two sample t-test test statistic calculator
-    # assuming equal variances
+class UnpairedOneSidedPermutationTestPowerSimulator:
+    # Calculates power of one-sided permutation test on unpaired
+    # samples with equal variance and equal number of observations
 
     @classmethod
-    def make(cls) -> "IndependentEqualVariancesCalculator":
+    def make(
+            cls,
+            *,
+            seed: int
+    ) -> "UnpairedOneSidedPermutationTestPowerSimulator":
         # public constructor!
+        cls._raise_if_is_not_strictly_positive(seed, name='seed')
+        generator = PCG64(seed=seed)
         return cls(
-            UnbiasedPooledVarianceCalculator.make()
+            OneSidedPermutationPValueCalculator.make(
+                IndepEqualVarTTestStatisticCalculator.make(),
+                NumpyRandomPermutator(generator)
+            ),
+            NumpyNormalGenerator(generator)
         )
 
-    def __init__(self, calculator: IPooledVarianceCalculator):
+    def __init__(
+            self,
+            calculator: IOneSidedPermutationPValueCalculator,
+            generator: INormalRandomGenerator
+    ):
         # private!
         self._calculator = calculator
+        self._generator = generator
 
     @property
-    def calculator(self) -> IPooledVarianceCalculator:
+    def calculator(self) -> IOneSidedPermutationPValueCalculator:
         # for testing!
         return self._calculator
 
-    def calculate(self, sample1: Vector, sample2: Vector) -> float:
-        # will raise if `sample1` or `sample2` is empty,
-        # or if the unbiased pooled variance of the two samples
-        # is exactly zero
-        variance = self._calculator.calculate((sample1, sample2))
-        self._raise_if_variance_is_zero(variance)
+    @property
+    def generator(self) -> INormalRandomGenerator:
+        # for testing!
+        return self._generator
+
+    def simulate(
+            self,
+            *,
+            number_of_simulations: int,
+            number_of_permutations: int,
+            number_of_observations: int,
+            means: Tuple[float, float],
+            scale: float,
+            alpha: float
+    ) -> float:
+        self._raise_if_is_not_strictly_positive(
+            number_of_simulations,
+            name='number_of_simulations'
+        )
+        self._raise_if_is_not_between_zero_and_one(alpha)
+        simulated = self._do_simulations(
+            number_of_simulations,
+            number_of_permutations,
+            number_of_observations,
+            means,
+            scale
+        )
+        return np.mean(simulated < alpha)
+
+    def _do_simulations(
+            self,
+            number_of_simulations: int,
+            number_of_permutations: int,
+            number_of_observations: int,
+            means: Tuple[float, float],
+            scale: float
+    ) -> np.ndarray:
+        simulated = np.empty((number_of_simulations,), dtype=np.float_)
+        for i in range(simulated.size):
+            simulated[i] = self._calculator.calculate(
+                number_of_permutations,
+                self._generate_samples(number_of_observations, means, scale)
+            )
+        return simulated
+
+    def _generate_samples(
+            self,
+            number_of_observations: int,
+            means: Tuple[float, float],
+            scale: float
+    ) -> Tuple[Vector, Vector]:
         return (
-                (np.mean(sample1.data) - np.mean(sample2.data))
-                / np.sqrt(variance * (1. / sample1.size + 1. / sample2.size))
+            self._generator.generate(
+                size=number_of_observations,
+                mean=means[0],
+                scale=scale
+            ),
+            self._generator.generate(
+                size=number_of_observations,
+                mean=means[1],
+                scale=scale
+            )
         )
 
     @staticmethod
-    def _raise_if_variance_is_zero(variance: float):
-        if variance == 0.:
-            msg = (
-                'cannot compute t-test test statistic, unbiased pooled '
-                'variance of provided samples is 0'
-            )
+    def _raise_if_is_not_strictly_positive(value: int, *, name: str):
+        if value <= 0:
+            msg = f'{name} must be strictly positive, was [{value}]'
+            raise ValueError(msg)
+
+    @staticmethod
+    def _raise_if_is_not_between_zero_and_one(alpha: float):
+        if not 0. <= alpha <= 1.:
+            msg = f'alpha must be in [0, 1], was [{alpha}]'
             raise ValueError(msg)

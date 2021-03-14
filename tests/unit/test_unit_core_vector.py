@@ -97,6 +97,59 @@ class TestVectorStringRepresentation:
 
 class TestVectorAlternativeConstructors:
 
+    def test_concatenate_when_empty(self):
+        result = Vector.concatenate(())
+        assert result == Vector.empty()
+
+    def test_concatenate_when_one_empty(self):
+        result = Vector.concatenate(
+            iter((
+                Vector.empty(),
+            ))
+        )
+        assert result == Vector.empty()
+
+    def test_concatenate_when_one_non_empty(self):
+        to_concatenate = Vector.from_sequence([1., 2., 3.])
+        result = Vector.concatenate(
+            iter((
+                to_concatenate,
+            ))
+        )
+        assert result == to_concatenate
+
+    def test_concatenate_when_multiple_and_all_empty(self):
+        result = Vector.concatenate(
+            iter((
+                Vector.empty(),
+                Vector.empty()
+            ))
+        )
+        assert result == Vector.empty()
+
+    def test_concatenate_when_multiple_and_any_non_empty(self):
+        result = Vector.concatenate(
+            iter((
+                Vector.empty(),
+                Vector.from_sequence([1., 2., 3.]),
+                Vector.empty()
+            ))
+        )
+        expected = Vector.from_sequence([1., 2., 3.])
+        assert result == expected
+
+    def test_concatenate_when_multiple_non_empty(self):
+        result = Vector.concatenate(
+            iter((
+                Vector.empty(),
+                Vector.from_sequence([1., 2., 3.]),
+                Vector.empty(),
+                Vector.from_sequence([4., 5.])
+            ))
+        )
+        expected = Vector.from_sequence([1., 2., 3., 4., 5.])
+        assert result == expected
+
     def test_empty(self):
         result = Vector.empty()
         expected = Vector.from_sequence(np.empty((0,), dtype=np.float_))
@@ -174,3 +227,94 @@ class TestVectorIsEmpty:
     def test_when_non_empty(self):
         vector = Vector.from_sequence([1.])
         assert not vector.is_empty()
+
+
+class TestVectorSplit:
+
+    @pytest.fixture(scope='class')
+    def vector(self) -> Vector:
+        return Vector.from_sequence([1., 2., 3.])
+
+    @pytest.mark.parametrize('index', [-1, 0, 1])
+    def test_when_empty(self, index: int):
+        vector = Vector.empty()
+        result = vector.split(index)
+        expected = (
+            Vector.empty(),
+            Vector.empty()
+        )
+        assert result == expected
+
+    def test_when_non_empty_and_index_negative_and_greater_than_size(
+            self,
+            vector: Vector
+    ):
+        result = vector.split(-5)
+        expected = (
+            Vector.empty(),
+            Vector.from_sequence([1., 2., 3.])
+        )
+        assert result == expected
+
+    def test_when_non_empty_and_index_negative_and_equal_to_size(
+            self,
+            vector: Vector
+    ):
+        result = vector.split(-3)
+        expected = (
+            Vector.empty(),
+            Vector.from_sequence([1., 2., 3.])
+        )
+        assert result == expected
+
+    def test_when_non_empty_and_index_negative_and_lower_than_size(
+            self,
+            vector: Vector
+    ):
+        result = vector.split(-1)
+        expected = (
+            Vector.from_sequence([1., 2.]),
+            Vector.from_sequence([3.])
+        )
+        assert result == expected
+
+    def test_when_non_empty_and_index_is_zero(self, vector: Vector):
+        result = vector.split(0)
+        expected = (
+            Vector.empty(),
+            vector
+        )
+        assert result == expected
+
+    def test_when_non_empty_and_index_positive_and_lower_than_size(
+            self,
+            vector: Vector
+    ):
+        result = vector.split(1)
+        expected = (
+            Vector.from_sequence([1.]),
+            Vector.from_sequence([2., 3.])
+        )
+        assert result == expected
+
+    def test_when_non_empty_and_index_positive_and_equal_to_size(
+            self,
+            vector: Vector
+    ):
+        result = vector.split(3)
+        expected = (
+            vector,
+            Vector.empty()
+        )
+        assert result == expected
+
+    def test_when_non_empty_and_index_positive_and_greater_than_size(
+            self,
+            vector: Vector
+    ):
+        result = vector.split(4)
+        expected = (
+            vector,
+            Vector.empty()
+        )
+        assert result == expected

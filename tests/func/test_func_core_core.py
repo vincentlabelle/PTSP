@@ -2,8 +2,7 @@
 
 import pytest
 
-from core.core import IndependentEqualVariancesCalculator
-from core.vector import Vector
+from core.core import UnpairedOneSidedPermutationTestPowerSimulator
 
 
 def _almost_equal(result: float, expected: float, *, tolerance: float) -> bool:
@@ -13,46 +12,21 @@ def _almost_equal(result: float, expected: float, *, tolerance: float) -> bool:
     return abs(result - expected) / expected <= tolerance
 
 
-class TestIndependentEqualVariancesCalculator:
+class TestUnpairedOneSidedPermutationTestPowerSimulator:
 
-    @pytest.fixture(scope='class')
-    def calculator(self):
-        return IndependentEqualVariancesCalculator.make()
+    @pytest.fixture(scope='function')
+    def simulator(self):
+        return UnpairedOneSidedPermutationTestPowerSimulator.make(
+            seed=1234
+        )  # stateful!
 
-    def test_when_both_samples_are_empty(self, calculator):
-        with pytest.raises(ValueError, match='must be non-empty'):
-            calculator.calculate(Vector.empty(), Vector.empty())
-
-    def test_when_sample1_is_empty(self, calculator):
-        with pytest.raises(ValueError, match='must be non-empty'):
-            calculator.calculate(
-                Vector.from_sequence([1., 2., 3.]),
-                Vector.empty()
-            )
-
-    def test_when_sample_2_is_empty(self, calculator):
-        with pytest.raises(ValueError, match='must be non-empty'):
-            calculator.calculate(
-                Vector.empty(),
-                Vector.from_sequence([1., 2., 3.])
-            )
-
-    def test_when_variance_is_zero(self, calculator):
-        sample1 = Vector.from_sequence([1.])
-        sample2 = Vector.from_sequence([2.])
-        with pytest.raises(ValueError, match='pooled variance.*is 0'):
-            calculator.calculate(sample1, sample2)
-
-    def test_when_same_sample_size(self, calculator):
-        sample1 = Vector.from_sequence([1., 2., 3.])
-        sample2 = Vector.from_sequence([4., 5., 6.])
-        result = calculator.calculate(sample1, sample2)
-        expected = -3.6742346141747673
-        assert _almost_equal(result, expected, tolerance=1e-8)
-
-    def test_when_different_sample_size(self, calculator):
-        sample1 = Vector.from_sequence([1., 2., 3.])
-        sample2 = Vector.from_sequence([4., 5.])
-        result = calculator.calculate(sample1, sample2)
-        expected = -3.0
-        assert _almost_equal(result, expected, tolerance=1e-8)
+    def test(self, simulator):
+        result = simulator.simulate(
+            number_of_simulations=300,
+            number_of_permutations=300,
+            number_of_observations=50,
+            means=(0.5, 0.),
+            scale=1.,
+            alpha=0.025
+        )
+        assert _almost_equal(result, 0.6968888, tolerance=2e-2)

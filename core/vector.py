@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from typing import Sequence
+from typing import Iterable, Sequence
 from typing import SupportsFloat
+from typing import Tuple
 
 import numpy as np
 from numpy import ndarray
@@ -9,6 +10,13 @@ from numpy import ndarray
 
 class Vector:
     # wrapper of one-dimensional np.ndarray of finite floats
+
+    @classmethod
+    def concatenate(cls, vectors: Iterable["Vector"]) -> "Vector":
+        frozen = tuple(vector.data for vector in vectors)
+        if len(frozen) == 0:  # corner-case!
+            return Vector.empty()
+        return cls(np.concatenate(frozen))
 
     @classmethod
     def empty(cls) -> "Vector":
@@ -41,6 +49,10 @@ class Vector:
 
     def is_empty(self) -> int:
         return self.size == 0
+
+    def split(self, index: int) -> Tuple["Vector", "Vector"]:
+        a, b = np.hsplit(self._data, (index,))
+        return self.__class__(a), self.__class__(b)
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}{self}>'
