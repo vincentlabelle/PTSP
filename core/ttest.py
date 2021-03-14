@@ -3,6 +3,7 @@
 from typing import Tuple
 
 import numpy as np
+from numba import njit
 
 from .variance import IPooledVarianceCalculator
 from .variance import UnbiasedPooledVarianceCalculator
@@ -42,8 +43,13 @@ class IndepEqualVarTTestStatisticCalculator(ITwoSampleTTestStatisticCalculator):
         variance = self._calculator.calculate(samples)
         self._raise_if_variance_is_zero(variance)
         a, b = samples
+        return self._calculate(variance, a.data, b.data)
+
+    @staticmethod
+    @njit(cache=True)
+    def _calculate(variance: float, a: np.ndarray, b: np.ndarray) -> float:
         return (
-                (np.mean(a.data) - np.mean(b.data))
+                (np.mean(a) - np.mean(b))
                 / np.sqrt(variance * (1. / a.size + 1. / b.size))
         )
 

@@ -3,6 +3,7 @@
 from typing import Iterable
 from typing import Tuple
 
+from numba import njit
 import numpy as np
 
 from .vector import Vector
@@ -71,8 +72,13 @@ class SampleVarianceCalculator(ISampleVarianceCalculator):
         self._raise_if_sample_is_empty(sample)
         if sample.size == 1:  # corner case!
             return 0.
+        return self._calculate(sample.data)
+
+    @staticmethod
+    @njit(cache=True)
+    def _calculate(sample: np.ndarray) -> float:
         return (
-                np.sum(np.power(sample.data - np.mean(sample.data), 2))
+                np.sum(np.power(sample - np.mean(sample), 2))
                 / (sample.size - 1)
         )
 

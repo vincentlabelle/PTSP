@@ -5,6 +5,7 @@ from typing import SupportsFloat
 from typing import Tuple
 
 import numpy as np
+from numba import njit
 from numpy import ndarray
 
 
@@ -51,7 +52,7 @@ class Vector:
         return self.size == 0
 
     def split(self, index: int) -> Tuple["Vector", "Vector"]:
-        a, b = np.hsplit(self._data, (index,))
+        a, b = self._split(self._data, index)
         return self.__class__(a), self.__class__(b)
 
     def __repr__(self) -> str:
@@ -85,9 +86,19 @@ class Vector:
             raise ValueError(msg)
 
     def _raise_if_is_not_finite(self):
-        if not np.all(np.isfinite(self._data)):
+        if not self._all_finite(self._data):
             msg = (
                 f'data must contain finite elements, some elements in '
                 f'data were not finite'
             )
             raise ValueError(msg)
+
+    @staticmethod
+    @njit(cache=True)
+    def _all_finite(data: ndarray) -> bool:
+        return np.all(np.isfinite(data))
+
+    @staticmethod
+    @njit(cache=True)
+    def _split(data: ndarray, index: int) -> Tuple[ndarray, ndarray]:
+        return np.split(data, (index,))
