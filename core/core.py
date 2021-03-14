@@ -7,12 +7,18 @@ from .variance import UnbiasedPooledVarianceCalculator
 from .vector import Vector
 
 
-class TwoSampleTTestStatisticCalculator:
+class ITwoSampleTTestStatisticCalculator:
+
+    def calculate(self, sample1: Vector, sample2: Vector) -> float:
+        raise NotImplementedError
+
+
+class IndependentEqualVariancesCalculator(ITwoSampleTTestStatisticCalculator):
     # independent two sample t-test test statistic calculator
     # assuming equal variances
 
     @classmethod
-    def make(cls) -> "TwoSampleTTestStatisticCalculator":
+    def make(cls) -> "IndependentEqualVariancesCalculator":
         # public constructor!
         return cls(
             UnbiasedPooledVarianceCalculator.make()

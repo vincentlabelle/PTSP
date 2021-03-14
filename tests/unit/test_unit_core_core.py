@@ -4,23 +4,23 @@ from typing import Iterable
 
 import pytest
 
-from core.core import TwoSampleTTestStatisticCalculator
+from core.core import IndependentEqualVariancesCalculator
 from core.variance import IPooledVarianceCalculator
 from core.variance import UnbiasedPooledVarianceCalculator
 from core.vector import Vector
 
 
-class TestTwoSampleTTestStatisticCalculatorAlternativeConstructors:
+class TestIndependentEqualVariancesCalculatorAlternativeConstructors:
 
     def test_make(self):
-        calculator = TwoSampleTTestStatisticCalculator.make()
+        calculator = IndependentEqualVariancesCalculator.make()
         assert isinstance(
             calculator.calculator,
             UnbiasedPooledVarianceCalculator
         )
 
 
-class TestTwoSampleTTestStatisticCalculatorProperties:
+class TestIndependentEqualVariancesCalculatorProperties:
 
     @pytest.fixture(scope='class')
     def sub(self) -> IPooledVarianceCalculator:
@@ -30,19 +30,19 @@ class TestTwoSampleTTestStatisticCalculatorProperties:
     def calculator(
             self,
             sub: IPooledVarianceCalculator
-    ) -> TwoSampleTTestStatisticCalculator:
-        return TwoSampleTTestStatisticCalculator(sub)
+    ) -> IndependentEqualVariancesCalculator:
+        return IndependentEqualVariancesCalculator(sub)
 
     def test_calculator(
             self,
-            calculator: TwoSampleTTestStatisticCalculator,
+            calculator: IndependentEqualVariancesCalculator,
             sub: IPooledVarianceCalculator
     ):
         assert calculator.calculator is sub
 
     def test_set_calculator(
             self,
-            calculator: TwoSampleTTestStatisticCalculator,
+            calculator: IndependentEqualVariancesCalculator,
             sub: IPooledVarianceCalculator
     ):
         with pytest.raises(AttributeError):
@@ -61,10 +61,10 @@ class _NonZeroPooledVarianceCalculatorStub(IPooledVarianceCalculator):
         return 6.4
 
 
-class TestTwoSampleTTestStatisticCalculatorCalculate:
+class TestIndependentEqualVariancesCalculatorCalculate:
 
     def test_when_variance_is_zero(self):
-        calculator = TwoSampleTTestStatisticCalculator(
+        calculator = IndependentEqualVariancesCalculator(
             _ZeroPooledVarianceCalculatorStub()
         )
         with pytest.raises(ValueError, match='pooled variance.*is 0'):
@@ -74,7 +74,7 @@ class TestTwoSampleTTestStatisticCalculatorCalculate:
             )
 
     def test_when_variance_is_non_zero(self):
-        calculator = TwoSampleTTestStatisticCalculator(
+        calculator = IndependentEqualVariancesCalculator(
             _NonZeroPooledVarianceCalculatorStub()
         )
         result = calculator.calculate(

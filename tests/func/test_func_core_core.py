@@ -2,20 +2,22 @@
 
 import pytest
 
-from core.core import TwoSampleTTestStatisticCalculator
+from core.core import IndependentEqualVariancesCalculator
 from core.vector import Vector
 
 
 def _almost_equal(result: float, expected: float, *, tolerance: float) -> bool:
     assert tolerance >= 0
+    if expected == 0.:
+        return abs(result - expected) <= tolerance
     return abs(result - expected) / expected <= tolerance
 
 
-class TestTwoSampleTTestStatisticCalculator:
+class TestIndependentEqualVariancesCalculator:
 
     @pytest.fixture(scope='class')
     def calculator(self):
-        return TwoSampleTTestStatisticCalculator.make()
+        return IndependentEqualVariancesCalculator.make()
 
     def test_when_both_samples_are_empty(self, calculator):
         with pytest.raises(ValueError, match='must be non-empty'):
