@@ -2,7 +2,7 @@
 
 import pytest
 
-from core.core import UnpairedOneSidedPermutationTestPowerSimulator
+from core import UnpairedOneSidedPermutationTestPowerSimulator
 
 
 def _almost_equal(result: float, expected: float, *, tolerance: float) -> bool:
