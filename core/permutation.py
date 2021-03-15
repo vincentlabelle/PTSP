@@ -88,6 +88,16 @@ class TwoSamplePermutator(ITwoSamplePermutator):
         self._calculator = calculator
         self._permutator = permutator
 
+    @property
+    def calculator(self) -> ITwoSampleTTestStatisticCalculator:
+        # for testing!
+        return self._calculator
+
+    @property
+    def permutator(self) -> IRandomPermutator:
+        # for testing!
+        return self._permutator
+
     def permute(
             self,
             number_of_permutations: int,
