@@ -11,7 +11,7 @@ from .permutation import OneSidedPermutationTestPValueCalculator
 from .random import INormalRandomGenerator
 from .random import NumpyNormalGenerator
 from .random import NumpyRandomPermutator
-from .ttest import IndepEqualVarTTestStatisticCalculator
+from .ttest import UnpairedSimilarVarTTestStatisticCalculator
 from .vector import Vector
 
 
@@ -31,7 +31,7 @@ class UnpairedOneSidedPermutationTestPowerSimulator:
         generator = PCG64(seed=seed)
         return cls(
             OneSidedPermutationTestPValueCalculator.make(
-                IndepEqualVarTTestStatisticCalculator.make(),
+                UnpairedSimilarVarTTestStatisticCalculator.make(),
                 NumpyRandomPermutator(generator)
             ),
             NumpyNormalGenerator(generator)

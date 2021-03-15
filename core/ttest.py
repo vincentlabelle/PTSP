@@ -16,12 +16,14 @@ class ITwoSampleTTestStatisticCalculator:
         raise NotImplementedError
 
 
-class IndepEqualVarTTestStatisticCalculator(ITwoSampleTTestStatisticCalculator):
-    # independent two sample t-test test statistic calculator
-    # assuming equal variances
+class UnpairedSimilarVarTTestStatisticCalculator(
+    ITwoSampleTTestStatisticCalculator
+):
+    # Unpaired two sample t-test test statistic calculator
+    # assuming similar variances
 
     @classmethod
-    def make(cls) -> "IndepEqualVarTTestStatisticCalculator":
+    def make(cls) -> "UnpairedSimilarVarTTestStatisticCalculator":
         # public constructor!
         return cls(
             UnbiasedPooledVarianceCalculator.make()

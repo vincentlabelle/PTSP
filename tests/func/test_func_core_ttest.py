@@ -2,7 +2,7 @@
 
 import pytest
 
-from core.ttest import IndepEqualVarTTestStatisticCalculator
+from core.ttest import UnpairedSimilarVarTTestStatisticCalculator
 from core.vector import Vector
 
 
@@ -13,11 +13,11 @@ def _almost_equal(result: float, expected: float, *, tolerance: float) -> bool:
     return abs(result - expected) / expected <= tolerance
 
 
-class TestIndepEqualVarTTestStatisticCalculator:
+class TestUnpairedSimilarVarTTestStatisticCalculator:
 
     @pytest.fixture(scope='class')
     def calculator(self):
-        return IndepEqualVarTTestStatisticCalculator.make()
+        return UnpairedSimilarVarTTestStatisticCalculator.make()
 
     def test_when_both_samples_are_empty(self, calculator):
         with pytest.raises(ValueError, match='must be non-empty'):

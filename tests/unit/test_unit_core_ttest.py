@@ -4,23 +4,23 @@ from typing import Iterable
 
 import pytest
 
-from core.ttest import IndepEqualVarTTestStatisticCalculator
+from core.ttest import UnpairedSimilarVarTTestStatisticCalculator
 from core.variance import IPooledVarianceCalculator
 from core.variance import UnbiasedPooledVarianceCalculator
 from core.vector import Vector
 
 
-class TestIndepEqualVarTTestStatisticCalculatorAlternativeConstructors:
+class TestUnpairedSimilarVarTTestStatisticCalculatorAlternativeConstructors:
 
     def test_make(self):
-        calculator = IndepEqualVarTTestStatisticCalculator.make()
+        calculator = UnpairedSimilarVarTTestStatisticCalculator.make()
         assert isinstance(
             calculator.calculator,
             UnbiasedPooledVarianceCalculator
         )
 
 
-class TestIndepEqualVarTTestStatisticCalculatorProperties:
+class TestUnpairedSimilarVarTTestStatisticCalculatorProperties:
 
     @pytest.fixture(scope='class')
     def sub(self) -> IPooledVarianceCalculator:
@@ -30,19 +30,19 @@ class TestIndepEqualVarTTestStatisticCalculatorProperties:
     def calculator(
             self,
             sub: IPooledVarianceCalculator
-    ) -> IndepEqualVarTTestStatisticCalculator:
-        return IndepEqualVarTTestStatisticCalculator(sub)
+    ) -> UnpairedSimilarVarTTestStatisticCalculator:
+        return UnpairedSimilarVarTTestStatisticCalculator(sub)
 
     def test_calculator(
             self,
-            calculator: IndepEqualVarTTestStatisticCalculator,
+            calculator: UnpairedSimilarVarTTestStatisticCalculator,
             sub: IPooledVarianceCalculator
     ):
         assert calculator.calculator is sub
 
     def test_set_calculator(
             self,
-            calculator: IndepEqualVarTTestStatisticCalculator,
+            calculator: UnpairedSimilarVarTTestStatisticCalculator,
             sub: IPooledVarianceCalculator
     ):
         with pytest.raises(AttributeError):
@@ -61,10 +61,10 @@ class _NonZeroPooledVarianceCalculatorStub(IPooledVarianceCalculator):
         return 6.4
 
 
-class TestIndepEqualVarTTestStatisticCalculatorCalculate:
+class TestUnpairedSimilarVarTTestStatisticCalculatorCalculate:
 
     def test_when_variance_is_zero(self):
-        calculator = IndepEqualVarTTestStatisticCalculator(
+        calculator = UnpairedSimilarVarTTestStatisticCalculator(
             _ZeroPooledVarianceCalculatorStub()
         )
         with pytest.raises(ValueError, match='pooled variance.*is 0'):
@@ -74,7 +74,7 @@ class TestIndepEqualVarTTestStatisticCalculatorCalculate:
             ))
 
     def test_when_variance_is_non_zero(self):
-        calculator = IndepEqualVarTTestStatisticCalculator(
+        calculator = UnpairedSimilarVarTTestStatisticCalculator(
             _NonZeroPooledVarianceCalculatorStub()
         )
         result = calculator.calculate((
