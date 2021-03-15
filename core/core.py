@@ -6,8 +6,8 @@ from typing import Tuple
 import numpy as np
 from numpy.random import PCG64
 
-from .permutation import IOneSidedPermutationPValueCalculator
-from .permutation import OneSidedPermutationPValueCalculator
+from .permutation import IOneSidedPermutationTestPValueCalculator
+from .permutation import OneSidedPermutationTestPValueCalculator
 from .random import INormalRandomGenerator
 from .random import NumpyNormalGenerator
 from .random import NumpyRandomPermutator
@@ -30,7 +30,7 @@ class UnpairedOneSidedPermutationTestPowerSimulator:
         cls._raise_if_is_negative(seed)
         generator = PCG64(seed=seed)
         return cls(
-            OneSidedPermutationPValueCalculator.make(
+            OneSidedPermutationTestPValueCalculator.make(
                 IndepEqualVarTTestStatisticCalculator.make(),
                 NumpyRandomPermutator(generator)
             ),
@@ -39,7 +39,7 @@ class UnpairedOneSidedPermutationTestPowerSimulator:
 
     def __init__(
             self,
-            calculator: IOneSidedPermutationPValueCalculator,
+            calculator: IOneSidedPermutationTestPValueCalculator,
             generator: INormalRandomGenerator
     ):
         # private!
@@ -47,7 +47,7 @@ class UnpairedOneSidedPermutationTestPowerSimulator:
         self._generator = generator
 
     @property
-    def calculator(self) -> IOneSidedPermutationPValueCalculator:
+    def calculator(self) -> IOneSidedPermutationTestPValueCalculator:
         # for testing!
         return self._calculator
 

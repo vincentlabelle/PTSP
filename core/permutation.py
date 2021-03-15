@@ -10,7 +10,7 @@ from .ttest import ITwoSampleTTestStatisticCalculator
 from .vector import Vector
 
 
-class IOneSidedPermutationPValueCalculator:
+class IOneSidedPermutationTestPValueCalculator:
 
     def calculate(
             self,
@@ -20,8 +20,8 @@ class IOneSidedPermutationPValueCalculator:
         raise NotImplementedError
 
 
-class OneSidedPermutationPValueCalculator(
-    IOneSidedPermutationPValueCalculator
+class OneSidedPermutationTestPValueCalculator(
+    IOneSidedPermutationTestPValueCalculator
 ):
     # Calculator of p-value for a one-sided permutation test on two
     # samples
@@ -31,7 +31,7 @@ class OneSidedPermutationPValueCalculator(
             cls,
             calculator: ITwoSampleTTestStatisticCalculator,
             permutator: IRandomPermutator
-    ) -> "OneSidedPermutationPValueCalculator":
+    ) -> "OneSidedPermutationTestPValueCalculator":
         # public constructor!
         return cls(
             TwoSamplePermutator(
