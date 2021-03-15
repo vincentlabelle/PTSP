@@ -8,6 +8,12 @@ from core.vector import Vector
 
 class TestVectorInvariants:
 
+    def test_immutable(self):
+        data = np.ones((1,), dtype=np.float_)
+        vector = Vector(data)
+        data[0] = 0.
+        assert vector.data != data
+
     @pytest.mark.parametrize('ndim', [0, 1, 2])
     def test_dimension(self, ndim: int):
         data = np.empty((1,) * ndim)
