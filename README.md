@@ -7,9 +7,9 @@ observations. The samples follow a normal distribution.
 In this translation the above mentioned function was converted into a Python
 object, ie. `UnpairedOneSidedPermutationTestPowerSimulator`.
 
-The code in this package includes a lot of utilities that would be useful in
-a statistical library. These utilities were separated from the main object 
-to perform the calculation of power for multiple reasons:
+The code in this package includes a lot of utilities that would be useful in a
+statistical library. These utilities were separated from the main object to
+perform the calculation of power for multiple reasons:
 
     1. Facilitate reuse
     2. Improve maintainability
@@ -43,9 +43,9 @@ The remaining files are utilities:
 
 ### tests/
 
-Includes functional tests and unit tests for part of the code in this
-package. In practice, all tests would have been implemented but for time
-considerations they were not all implemented.
+Includes functional tests and unit tests for part of the code in this package.
+In practice, all tests would have been implemented but for time considerations
+they were not all implemented.
 
 Specifically, the file *tests/func/test_func_core_core.py* includes an
 equivalent test to the one performed in the R code to validate the object
@@ -54,10 +54,10 @@ ie. `UnpairedOneSidedPermutationTestPowerSimulator`.
 
 ## Usage
 
-The code was tested using Python 3.8. It was assumed that the technical 
-constraint Python 3.6+ meant to use any version of Python above or equal to 
-Python 3.6. It was **not** assumed that it meant that the code should 
-support all versions of Python above or equal to Python 3.6.
+The code was tested using Python 3.8. It was assumed that the technical
+constraint Python 3.6+ meant to use any version of Python above or equal to
+Python 3.6. It was **not** assumed that it meant that the code should support
+all versions of Python above or equal to Python 3.6.
 
 Dependencies are given in the *requirements.txt*.
 
@@ -85,3 +85,12 @@ to time limitation. Although, a dependency on the package `numba` was introduced
 to improve performance. In practice, further analysis would be required to
 improve the performance if the current performance of the code is not
 sufficient.
+
+Caching is activated for `numba`, thus the automated tests will run slower on
+the first execution, and should run faster after the first execution.
+
+## Documentation
+
+A complete documentation of the code was **not** performed due to time
+limitation. In practice, all the code would have been documented. Some comments
+are available throughout the code.
